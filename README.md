@@ -7,7 +7,7 @@ submitted searches, and serves suggestions with low latency. Reads are served
 from a distributed cache (consistent hashing) backed by an in-memory trie;
 writes are batched (write-back) into PostgreSQL.
 
-**Stack:** FastAPI · PostgreSQL · 3 Redis nodes · vanilla JS UI.
+**Stack:** Node.js (Express) · PostgreSQL · 3 Redis nodes · vanilla JS UI.
 Design decisions and trade-offs: [DESIGN.md](DESIGN.md). Numbers: [PERFORMANCE.md](PERFORMANCE.md).
 
 ## Run
@@ -15,10 +15,10 @@ Design decisions and trade-offs: [DESIGN.md](DESIGN.md). Numbers: [PERFORMANCE.m
 ```bash
 docker compose up -d                       # Postgres + 3 Redis
 cp .env.example .env
-python3 -m venv .venv && ./.venv/bin/python -m pip install -r requirements.txt
+npm install
 
-./.venv/bin/python -m scripts.load_dataset --synthetic 120000   # quick start, no download
-./.venv/bin/python -m uvicorn backend.main:app --port 8000
+node scripts/loadDataset.js --synthetic 120000   # quick start, no download
+npm start                                         # node backend/server.js (port 8000)
 open http://127.0.0.1:8000
 ```
 
@@ -32,8 +32,8 @@ AOL 2006 query log (real searches; counts derived by aggregation). To load it:
 ```bash
 curl -L -o files/aol.zip "https://archive.org/download/AOL_search_data_leak_2006/AOL_search_data_leak_2006.zip"
 unzip -o -j files/aol.zip "AOL-user-ct-collection/*.txt.gz" -d files/aol_data
-./.venv/bin/python -m scripts.load_dataset --dir files/aol_data --min-count 2 --out files/aol_agg.tsv
-./.venv/bin/python -m scripts.load_dataset --agg-file files/aol_agg.tsv --top 1000000 --min-count 3
+node --max-old-space-size=4096 scripts/loadDataset.js --dir files/aol_data --min-count 2 --out files/aol_agg.tsv
+node scripts/loadDataset.js --agg-file files/aol_agg.tsv --top 1000000 --min-count 3
 ```
 
 35.4M rows → 4.1M distinct queries; we load the top 1M by count (the full set
@@ -51,14 +51,14 @@ makes the in-memory trie unnecessarily large). `--synthetic N` needs no download
 | GET | `/metrics` | Hit rate, DB read/write counts, write reduction, p50/p95. |
 
 ```bash
-python -m scripts.benchmark --reads 8000 --writes 20000   # performance report
+node scripts/benchmark.js --reads 8000 --writes 20000   # performance report
 ```
 
 ## Layout
 
 ```
-backend/   main.py · config.py · consistent_hash.py · cache.py · trie.py
-           store.py · write_buffer.py · ranking.py · trending.py · metrics.py
-scripts/   load_dataset.py · benchmark.py
+backend/   server.js · config.js · consistentHash.js · cache.js · trie.js
+           store.js · writeBuffer.js · ranking.js · trending.js · metrics.js
+scripts/   loadDataset.js · benchmark.js
 frontend/  index.html · app.js
 ```

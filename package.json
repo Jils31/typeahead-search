@@ -1,0 +1,17 @@
+{
+  "name": "search-typeahead",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node backend/server.js",
+    "load": "node scripts/loadDataset.js",
+    "bench": "node scripts/benchmark.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "ioredis": "^5.4.2",
+    "pg": "^8.13.1"
+  }
+}

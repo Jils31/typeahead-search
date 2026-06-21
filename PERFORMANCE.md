@@ -1,7 +1,7 @@
 # Performance
 
-Setup: 1 FastAPI node, 1 Postgres, 3 Redis nodes (Docker). Dataset: AOL 2006,
-top 1,000,000 queries by count. Reproduce: `python -m scripts.benchmark`.
+Setup: 1 Node.js app node, 1 Postgres, 3 Redis nodes (Docker). Dataset: AOL
+2006, top 1,000,000 queries by count. Reproduce: `node scripts/benchmark.js`.
 
 ## Read latency — `GET /suggest`
 - Server p95 ≈ **0.5 ms** (cache hit → Redis; miss → in-memory trie).
@@ -30,6 +30,6 @@ Per-prefix routing via `GET /cache/debug?prefix=<p>`.
 
 ## Reproduce
 ```bash
-python -m scripts.benchmark --base http://localhost:8000 --reads 8000 --writes 20000
+node scripts/benchmark.js --base http://localhost:8000 --reads 8000 --writes 20000
 curl 'http://localhost:8000/cache/ring?sample=5000'
 ```
