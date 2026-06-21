@@ -1,0 +1,47 @@
+# Distributed cache + primary store for the Search Typeahead system.
+# - 1 Postgres = durable source of truth (counts).
+# - 3 Redis nodes = the DISTRIBUTED cache. The app routes prefix keys across
+#   them with consistent hashing. Each node caps memory and evicts with LRU
+#   (the eviction "safety net" discussed in DESIGN.md).
+services:
+  postgres:
+    image: postgres:16
+    container_name: typeahead-postgres
+    environment:
+      POSTGRES_USER: typeahead
+      POSTGRES_PASSWORD: typeahead
+      POSTGRES_DB: typeahead
+    ports:
+      - "5433:5432"   # 5433 on host to avoid clashing with a native Postgres on 5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U typeahead"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  # --- Distributed cache nodes (3 logical shards of one global cache) ---
+  redis-0:
+    image: redis:7
+    container_name: typeahead-redis-0
+    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6390:6379"
+
+  redis-1:
+    image: redis:7
+    container_name: typeahead-redis-1
+    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6391:6379"
+
+  redis-2:
+    image: redis:7
+    container_name: typeahead-redis-2
+    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6392:6379"
+
+volumes:
+  pgdata:

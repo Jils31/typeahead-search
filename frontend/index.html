@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Search Typeahead</title>
+  <style>
+    :root {
+      --bg:#ffffff; --ink:#0a0a0a; --mut:#8a8a8a; --line:#e6e6e6;
+      --card:#ffffff; --hover:#f4f4f4; --radius:16px;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink);
+           font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: 680px; margin: 8vh auto; padding: 0 20px; }
+    h1 { font-size: 24px; font-weight: 650; letter-spacing: -0.02em; margin: 0 0 6px; }
+    .sub { color: var(--mut); font-size: 13.5px; margin-bottom: 28px; }
+
+    .searchbar { position: relative; display:flex; gap:10px; }
+    #q { flex:1; padding: 15px 18px; font-size: 16px; color: var(--ink);
+         background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+         outline: none; transition: border-color .15s; }
+    #q::placeholder { color: #bdbdbd; }
+    #q:focus { border-color: var(--ink); }
+    button { padding: 0 22px; font-size: 15px; font-weight: 550; cursor: pointer;
+             background: var(--ink); color:#fff; border:1px solid var(--ink); border-radius: var(--radius);
+             transition: opacity .15s; }
+    button:hover { opacity: .85; }
+
+    .dropdown { position:absolute; top:58px; left:0; right:0; z-index:5;
+                background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+                overflow:hidden; box-shadow: 0 6px 24px rgba(0,0,0,.06); }
+    .item { padding: 12px 18px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+    .item + .item { border-top: 1px solid var(--line); }
+    .item:hover, .item.active { background: var(--hover); }
+    .item .c { color: var(--mut); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+    .row { display:flex; align-items:center; justify-content: space-between; gap:14px; margin: 18px 2px; flex-wrap:wrap; }
+    .modes label { color: var(--mut); font-size: 13px; margin-right: 12px; cursor:pointer; }
+    .modes input { accent-color: var(--ink); }
+    .badge { font-size: 12px; padding: 3px 10px; border-radius: 999px; border:1px solid var(--line); color: var(--mut); }
+    .badge.hit { color:#fff; background: var(--ink); border-color: var(--ink); }
+    .badge.miss { color: var(--ink); border-color: var(--ink); }
+
+    .status { min-height: 18px; font-size: 13px; color: var(--mut); margin: 2px; }
+    .status.err { color:#c0392b; }
+    .answer { margin-top: 14px; padding: 13px 18px; border-radius: var(--radius);
+              background:#0a0a0a; color:#fff; font-size: 14px; display:none; }
+
+    .card { margin-top: 28px; background: var(--card); border:1px solid var(--line);
+            border-radius: var(--radius); padding: 18px 20px; }
+    .card h2 { font-size: 12px; margin: 0 0 12px; color: var(--mut);
+               text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+    .trend { display:flex; justify-content:space-between; align-items:center; padding: 9px 0; }
+    .trend + .trend { border-top: 1px solid var(--line); }
+    .trend .s { color: var(--mut); font-size: 12px; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Search Typeahead</h1>
+    <div class="sub">Distributed cache · consistent hashing · trie top-k · write-back batching · recency trending</div>
+
+    <div class="searchbar">
+      <input id="q" type="text" placeholder="Start typing…" autocomplete="off" spellcheck="false" />
+      <button id="go">Search</button>
+      <div id="dropdown" class="dropdown" style="display:none"></div>
+    </div>
+
+    <div class="row">
+      <span class="modes">
+        <label><input type="radio" name="mode" value="count"> all-time count</label>
+        <label><input type="radio" name="mode" value="hybrid" checked> hybrid (recency)</label>
+      </span>
+      <span id="source" class="badge">—</span>
+    </div>
+
+    <div id="status" class="status"></div>
+    <div id="answer" class="answer"></div>
+
+    <div class="card">
+      <h2>Trending now</h2>
+      <div id="trending"></div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

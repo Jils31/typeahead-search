@@ -1,0 +1,20 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# local config (use .env.example as the template)
+.env
+
+# dataset artifacts (downloaded/generated locally)
+files/*.txt
+files/*.csv
+files/*.zip
+files/*.tsv
+files/aol_data/
+!files/.gitkeep
+
+# unrelated file in this folder
+sentiment-analysis-report.md
+
+/tmp/
